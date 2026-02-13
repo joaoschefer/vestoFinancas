@@ -1,0 +1,65 @@
+/* Dashboard.css */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.dashboard-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 30px;
+  background-color: #f4f7f6;
+  overflow-y: auto;
+}
+
+.dashboard-title {
+  margin-bottom: 25px;
+}
+
+.dashboard-title h2 {
+  color: #333;
+  font-size: 1.5rem;
+}
+
+/* Cards */
+.dashboard-cards {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 250px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-card span {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.dashboard-card strong {
+  font-size: 1.6rem;
+  margin-top: 8px;
+  color: #2c3e50;
+}
+
+.dashboard-entradas { color: #2ecc71; }
+.dashboard-saidas   { color: #e74c3c; }
+.dashboard-saldo    { color: #2c3e50; }

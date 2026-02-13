@@ -1,0 +1,22 @@
+.config-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.config-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.config-content {
+  flex: 1;
+  padding: 30px;
+  background-color: #eef6ff; 
+  overflow-y: auto;
+}
+
+

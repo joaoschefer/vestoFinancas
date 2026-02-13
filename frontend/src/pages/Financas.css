@@ -1,0 +1,239 @@
+.financas-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.financas-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.financas-content {
+  flex: 1;
+  padding: 30px;
+  background-color: #f6f2ff;
+  overflow-y: auto;
+}
+
+.financas-title {
+  margin-bottom: 18px;
+}
+
+.financas-title h2 {
+  color: #2b2b2b;
+  font-size: 1.5rem;
+}
+
+/* Cards */
+.financas-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.financas-card {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.financas-card span {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.financas-card strong {
+  margin-top: 8px;
+  font-size: 1.6rem;
+  color: #2c3e50;
+}
+
+.financas-entradas { color: #2ecc71; }
+.financas-saidas { color: #e74c3c; }
+.financas-saldo-ok { color: #2c3e50; }
+.financas-saldo-bad { color: #e74c3c; }
+
+/* Filtro */
+.financas-filter {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 18px;
+}
+
+.financas-filter-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.financas-filter h3 {
+  margin: 0;
+}
+
+.financas-filter-clear {
+  border: 1px solid #e6e6e6;
+  background: #fafafa;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.financas-filter-row {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  align-items: end;
+}
+
+.financas-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 190px;
+  flex: 1;
+}
+
+.financas-field label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 700;
+}
+
+.financas-field input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.financas-filter-info {
+  min-width: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1;
+  color: #666;
+}
+
+/* Form */
+.financas-box {
+  background: white;
+  padding: 22px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 18px;
+}
+
+.financas-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.financas-form input,
+.financas-form select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 170px;
+}
+
+.financas-btn-add {
+  padding: 10px 22px;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: 0.2s;
+}
+
+.financas-btn-add:hover {
+  background-color: #7d3c98;
+}
+
+/* Lista */
+.financas-lista {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.financas-lista-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.financas-badge-periodo {
+  background: #f1ecff;
+  border: 1px solid #e5dcff;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: #5b3aa6;
+  font-size: 0.9rem;
+}
+
+.financas-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.financas-table th {
+  text-align: left;
+  color: #888;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.financas-table td {
+  padding: 14px 0;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.financas-valor-entrada { color: #2ecc71; font-weight: 800; }
+.financas-valor-saida { color: #e74c3c; font-weight: 800; }
+
+.financas-empty {
+  text-align: center;
+  padding: 18px 0;
+  color: #888;
+  font-weight: 700;
+}
+
+.financas-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.financas-btn-refresh {
+  border: 1px solid #e6e6e6;
+  background: #fafafa;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 800;
+}

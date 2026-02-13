@@ -1,0 +1,41 @@
+aside {
+    background-color: #1e1e1e;
+    color: white;
+    width: 240px;
+    height: 100%;
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+aside nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+aside nav ul li {
+    padding: 0; /* O padding vai para o link para aumentar a área de clique */
+}
+
+.nav-link {
+    display: block;
+    padding: 15px 25px;
+    color: #bdc3c7;
+    text-decoration: none; 
+    transition: all 0.2s ease;
+}
+
+/* Efeito ao passar o mouse ou quando o link está ativo */
+.nav-link:hover {
+    background-color: #2c3e50;
+    color: #4ade80; /* Verde limão moderno */
+    padding-left: 35px;
+}
+
+/* Opcional: Estilo para identificar em qual página você está */
+.nav-link.active {
+    background-color: #2c3e50;
+    color: white;
+    border-left: 4px solid #4ade80;
+}
