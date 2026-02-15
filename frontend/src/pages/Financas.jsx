@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  PieChart, Pie, Cell
+} from 'recharts';
 import "./Financas.css";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
@@ -9,13 +13,14 @@ function Financas() {
   const [transacoes, setTransacoes] = useState([]);
   const [carregando, setCarregando] = useState(false);
 
-  // formulário
+  const [modalNovoAberto, setModalNovoAberto] = useState(false);
+  const [modalFiltroAberto, setModalFiltroAberto] = useState(false);
+
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [tipo, setTipo] = useState("entrada");
   const [data, setData] = useState("");
 
-  // filtro
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
 
@@ -24,31 +29,22 @@ function Financas() {
 
   const formatarDataBR = (d) => {
     if (!d) return "-";
-    // backend costuma mandar "YYYY-MM-DD"
     const [ano, mes, dia] = String(d).split("-");
-    if (!ano || !mes || !dia) return d;
-    return `${dia}/${mes}/${ano}`;
-  };
-
-  const montarUrlLista = () => {
-    const params = new URLSearchParams();
-    if (dataInicio) params.set("data_inicio", dataInicio);
-    if (dataFim) params.set("data_fim", dataFim);
-
-    const qs = params.toString();
-    return qs ? `${API_URL}?${qs}` : API_URL;
+    return (ano && mes && dia) ? `${dia}/${mes}/${ano}` : d;
   };
 
   const carregarTransacoes = async () => {
     setCarregando(true);
     try {
-      const res = await fetch(montarUrlLista());
-      if (!res.ok) throw new Error("Falha ao buscar transações.");
+      const params = new URLSearchParams();
+      if (dataInicio) params.set("data_inicio", dataInicio);
+      if (dataFim) params.set("data_fim", dataFim);
+
+      const res = await fetch(`${API_URL}?${params.toString()}`);
       const dados = await res.json();
       setTransacoes(Array.isArray(dados) ? dados : []);
     } catch (err) {
       console.error(err);
-      alert("Erro ao carregar transações do backend.");
       setTransacoes([]);
     } finally {
       setCarregando(false);
@@ -57,19 +53,39 @@ function Financas() {
 
   useEffect(() => {
     carregarTransacoes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataInicio, dataFim]);
+
+  const resumo = useMemo(() => {
+    const entradas = transacoes
+      .filter(t => t.tipo === "entrada")
+      .reduce((acc, t) => acc + Number(t.valor || 0), 0);
+
+    const saidas = transacoes
+      .filter(t => t.tipo === "saida")
+      .reduce((acc, t) => acc + Number(t.valor || 0), 0);
+
+    return { entradas, saidas, saldo: entradas - saidas };
+  }, [transacoes]);
+
+  const dadosPizza = [
+    { name: "Entradas", value: resumo.entradas, color: "#05cd99" },
+    { name: "Saídas", value: resumo.saidas, color: "#ee5d50" }
+  ].filter(d => d.value > 0);
+
+  const dadosBarras = useMemo(() => {
+    const agrupado = transacoes.reduce((acc, t) => {
+      const d = formatarDataBR(t.data);
+      if (!acc[d]) acc[d] = { name: d, entrada: 0, saida: 0 };
+      if (t.tipo === "entrada") acc[d].entrada += Number(t.valor);
+      else acc[d].saida += Number(t.valor);
+      return acc;
+    }, {});
+    return Object.values(agrupado).reverse().slice(-7);
+  }, [transacoes]);
 
   const adicionarTransacao = async (e) => {
     e.preventDefault();
-    if (!descricao || !valor || !data) return alert("Preencha todos os campos!");
-
-    const payload = {
-      descricao: descricao.trim(),
-      valor: Number(valor),
-      tipo,
-      data, // YYYY-MM-DD
-    };
+    const payload = { descricao, valor: Number(valor), tipo, data };
 
     try {
       const res = await fetch(API_URL, {
@@ -78,141 +94,124 @@ function Financas() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Falha ao salvar transação.");
-      const criado = await res.json();
-
-      // adiciona no topo (se estiver no período filtrado, pode ou não aparecer; aqui adiciona e pronto)
-      setTransacoes((prev) => [criado, ...prev]);
-
-      setDescricao("");
-      setValor("");
-      setData("");
-      setTipo("entrada");
+      if (res.ok) {
+        const criado = await res.json();
+        setTransacoes(prev => [criado, ...prev]);
+        setModalNovoAberto(false);
+        setDescricao("");
+        setValor("");
+        setData("");
+      }
     } catch (err) {
       console.error(err);
-      alert("Erro ao salvar no backend.");
+      alert("Erro ao salvar.");
     }
   };
 
-  const limparFiltro = () => {
-    setDataInicio("");
-    setDataFim("");
+  // ✅ NOVO: excluir lançamento
+  const excluirTransacao = async (id) => {
+    const ok = window.confirm("Excluir este lançamento?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`${API_URL}${id}/`, { method: "DELETE" });
+
+      // DRF normalmente retorna 204 No Content
+      if (res.status === 204 || res.ok) {
+        setTransacoes((prev) => prev.filter((t) => t.id !== id));
+      } else {
+        const txt = await res.text().catch(() => "");
+        console.log(txt);
+        alert("Não foi possível excluir.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao excluir.");
+    }
   };
-
-  // resumo (saldo/entradas/saídas) baseado no que veio do backend (já filtrado)
-  const resumo = useMemo(() => {
-    const entradas = transacoes
-      .filter((t) => t.tipo === "entrada")
-      .reduce((acc, t) => acc + Number(t.valor || 0), 0);
-
-    const saidas = transacoes
-      .filter((t) => t.tipo === "saida")
-      .reduce((acc, t) => acc + Number(t.valor || 0), 0);
-
-    return { entradas, saidas, saldo: entradas - saidas };
-  }, [transacoes]);
 
   return (
     <div className="financas-page">
       <Header />
-
       <div className="financas-main">
         <Sidebar />
-
         <main className="financas-content">
-          <div className="financas-title">
-            <h2>Minhas Finanças</h2>
+          <div className="financas-top-bar">
+            <div className="financas-title">
+              <h2>Dashboard Financeiro</h2>
+              <p>Bem-vindo ao seu controle mensal</p>
+            </div>
+            <div className="financas-actions">
+              <button className="btn-secondary" onClick={() => setModalFiltroAberto(true)}>Filtrar</button>
+              <button className="btn-primary" onClick={() => setModalNovoAberto(true)}>Novo Lançamento</button>
+            </div>
           </div>
 
-          {/* Cards */}
           <div className="financas-cards">
             <div className="financas-card">
-              <span>Saldo</span>
-              <strong className={resumo.saldo >= 0 ? "financas-saldo-ok" : "financas-saldo-bad"}>
+              <span>Saldo Atual</span>
+              <strong className={resumo.saldo >= 0 ? "valor-positivo" : "valor-negativo"}>
                 {formatarBRL(resumo.saldo)}
               </strong>
             </div>
-
             <div className="financas-card">
               <span>Entradas</span>
               <strong className="financas-entradas">{formatarBRL(resumo.entradas)}</strong>
             </div>
-
             <div className="financas-card">
               <span>Saídas</span>
               <strong className="financas-saidas">{formatarBRL(resumo.saidas)}</strong>
             </div>
           </div>
 
-          {/* Filtro */}
-          <section className="financas-filter">
-            <div className="financas-filter-head">
-              <h3>Filtro por período</h3>
-              <button type="button" className="financas-filter-clear" onClick={limparFiltro}>
-                Limpar
-              </button>
+          <div className="financas-charts-row">
+            <div className="chart-container">
+              <h3>Distribuição de Gastos</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={dadosPizza}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                  >
+                    {dadosPizza.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
             </div>
 
-            <div className="financas-filter-row">
-              <div className="financas-field">
-                <label>De</label>
-                <input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
-              </div>
-
-              <div className="financas-field">
-                <label>Até</label>
-                <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
-              </div>
-
-              <div className="financas-filter-info">
-                <span>
-                  {carregando ? "Carregando..." : <>Mostrando: <strong>{transacoes.length}</strong> lançamento(s)</>}
-                </span>
-              </div>
+            <div className="chart-container">
+              <h3>Fluxo Recente</h3>
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={dadosBarras}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
+                  <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip cursor={{ fill: "#f5f7ff" }} />
+                  <Bar dataKey="entrada" fill="#05cd99" radius={[4, 4, 0, 0]} name="Entrada" />
+                  <Bar dataKey="saida" fill="#ee5d50" radius={[4, 4, 0, 0]} name="Saída" />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-          </section>
+          </div>
 
-          {/* Form */}
-          <section className="financas-box">
-            <h3>Novo Lançamento</h3>
-
-            <form onSubmit={adicionarTransacao} className="financas-form">
-              <input
-                type="text"
-                placeholder="Descrição"
-                value={descricao}
-                onChange={(e) => setDescricao(e.target.value)}
-              />
-
-              <input
-                type="number"
-                placeholder="Valor (R$)"
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-              />
-
-              <input type="date" value={data} onChange={(e) => setData(e.target.value)} />
-
-              <select value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-              </select>
-
-              <button type="submit" className="financas-btn-add">
-                Adicionar
-              </button>
-            </form>
-          </section>
-
-          {/* Lista */}
-          <section className="financas-lista">
-            <div className="financas-lista-head">
-              <h3>Histórico</h3>
-
+          <section className="financas-lista-container">
+            <div className="lista-header">
+              <h3>Histórico de Lançamentos</h3>
               {(dataInicio || dataFim) && (
-                <span className="financas-badge-periodo">
-                  Período: {dataInicio ? formatarDataBR(dataInicio) : "—"} até {dataFim ? formatarDataBR(dataFim) : "—"}
-                </span>
+                <div className="filtro-badge">
+                  {formatarDataBR(dataInicio)} - {formatarDataBR(dataFim)}
+                  <button onClick={() => { setDataInicio(""); setDataFim(""); }}>×</button>
+                </div>
               )}
             </div>
 
@@ -223,43 +222,95 @@ function Financas() {
                   <th>Valor</th>
                   <th>Tipo</th>
                   <th>Data</th>
+                  <th>Ações</th>
                 </tr>
               </thead>
-
               <tbody>
-                {transacoes.map((t) => (
+                {transacoes.map(t => (
                   <tr key={t.id}>
                     <td>{t.descricao}</td>
-
-                    <td className={t.tipo === "entrada" ? "financas-valor-entrada" : "financas-valor-saida"}>
-                      {t.tipo === "saida" ? "-" : ""}
-                      {formatarBRL(t.valor).replace("R$", " R$")}
+                    <td className={t.tipo === "entrada" ? "txt-entrada" : "txt-saida"}>
+                      {t.tipo === "saida" ? "- " : "+ "}{formatarBRL(t.valor)}
                     </td>
-
-                    <td>{String(t.tipo || "").toUpperCase()}</td>
-
+                    <td>
+                      <span className={`badge-tipo ${t.tipo}`}>{t.tipo.toUpperCase()}</span>
+                    </td>
                     <td>{formatarDataBR(t.data)}</td>
+
+                    {/* ✅ NOVO: botão excluir */}
+                    <td>
+                      <button className="btn-danger" onClick={() => excluirTransacao(t.id)}>
+                        Excluir
+                      </button>
+                    </td>
                   </tr>
                 ))}
-
-                {!carregando && transacoes.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="financas-empty">
-                      Nenhum lançamento encontrado.
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
-
-            <div className="financas-footer-actions">
-              <button type="button" className="financas-btn-refresh" onClick={carregarTransacoes}>
-                Recarregar
-              </button>
-            </div>
           </section>
         </main>
       </div>
+
+      {modalNovoAberto && (
+        <div className="modal-overlay" onClick={() => setModalNovoAberto(false)}>
+          <div className="modal-card" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Novo Lançamento</h3>
+              <button className="close-btn" onClick={() => setModalNovoAberto(false)}>&times;</button>
+            </div>
+            <form onSubmit={adicionarTransacao} className="modal-body">
+              <div className="input-group">
+                <label>Descrição</label>
+                <input required type="text" value={descricao} onChange={e => setDescricao(e.target.value)} />
+              </div>
+              <div className="input-group">
+                <label>Valor</label>
+                <input required type="number" step="0.01" value={valor} onChange={e => setValor(e.target.value)} />
+              </div>
+              <div className="modal-row">
+                <div className="input-group">
+                  <label>Data</label>
+                  <input required type="date" value={data} onChange={e => setData(e.target.value)} />
+                </div>
+                <div className="input-group">
+                  <label>Tipo</label>
+                  <select value={tipo} onChange={e => setTipo(e.target.value)}>
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" className="btn-primary full">Salvar</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {modalFiltroAberto && (
+        <div className="modal-overlay" onClick={() => setModalFiltroAberto(false)}>
+          <div className="modal-card mini" onClick={e => e.stopPropagation()}>
+            <div className="modal-header"><h3>Filtrar por Período</h3></div>
+            <div className="modal-body">
+              <div className="input-group">
+                <label>De</label>
+                <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
+              </div>
+              <div className="input-group">
+                <label>Até</label>
+                <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} />
+              </div>
+              <div className="modal-footer">
+                <button className="btn-secondary" onClick={() => { setDataInicio(""); setDataFim(""); setModalFiltroAberto(false); }}>
+                  Limpar
+                </button>
+                <button className="btn-primary" onClick={() => setModalFiltroAberto(false)}>
+                  Aplicar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
