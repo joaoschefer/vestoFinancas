@@ -25,6 +25,10 @@
   justify-content: space-between;
   align-items: flex-end;
   margin-bottom: 30px;
+  background: #fff;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .invest-title h2 {
