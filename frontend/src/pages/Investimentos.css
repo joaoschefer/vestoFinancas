@@ -1,3 +1,5 @@
+/* Investimentos.css (COMPLETO E EDITADO) */
+
 .invest-page {
   display: flex;
   flex-direction: column;
@@ -29,6 +31,8 @@
   border-radius: 16px;
   border: 2px solid transparent;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  padding: 18px 18px;
+  gap: 16px;
 }
 
 .invest-title h2 {
@@ -39,12 +43,13 @@
 
 .invest-title p {
   color: #64748b;
-  margin: 4px 0 0;
+  margin: 6px 0 0;
 }
 
 .invest-buttons {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .btn-add {
@@ -63,6 +68,11 @@
   padding: 12px 20px;
   border-radius: 10px;
   cursor: pointer;
+}
+
+.btn-add:hover,
+.btn-filter:hover {
+  filter: brightness(0.97);
 }
 
 /* Cards */
@@ -176,15 +186,20 @@
   height: fit-content;
 }
 
+.btn-clear:hover {
+  filter: brightness(0.97);
+}
+
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
 }
 
+/* >>> AJUSTE PC: colunas fixas e alinhadas <<< */
 .invest-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
+  table-layout: fixed;
 }
 
 .invest-table th {
@@ -200,8 +215,37 @@
   padding: 16px 12px;
   border-bottom: 1px solid #f8fafc;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* Largura por coluna (PC) */
+.invest-table th:nth-child(1),
+.invest-table td:nth-child(1) {
+  width: 28%;
+}
+
+.invest-table th:nth-child(2),
+.invest-table td:nth-child(2) {
+  width: 16%;
+}
+
+.invest-table th:nth-child(3),
+.invest-table td:nth-child(3) {
+  width: 16%;
+}
+
+.invest-table th:nth-child(4),
+.invest-table td:nth-child(4) {
+  width: 20%;
+}
+
+.invest-table th:nth-child(5),
+.invest-table td:nth-child(5) {
+  width: 20%;
+}
+
+/* Tipografia */
 .font-bold {
   font-weight: 600;
   color: #1e293b;
@@ -211,6 +255,29 @@
   padding: 18px 12px;
   text-align: center;
   color: #64748b;
+}
+
+/* Coluna Ações */
+.td-actions {
+  text-align: right;
+}
+
+.btn-delete {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-delete:hover {
+  filter: brightness(0.97);
 }
 
 /* Badges */
@@ -332,24 +399,67 @@
   filter: brightness(0.97);
 }
 
-.btn-add:hover,
-.btn-filter:hover,
-.btn-clear:hover {
-  filter: brightness(0.97);
-}
-
 /* Responsivo */
 @media (max-width: 900px) {
   .invest-content {
     padding: 24px;
   }
+
   .invest-header-actions {
     flex-direction: column;
     align-items: flex-start;
-    gap: 14px;
   }
+
   .invest-charts {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile: tabela vira cards (só no mobile) */
+@media (max-width: 720px) {
+  .invest-table {
+    border-collapse: separate;
+    border-spacing: 0 12px;
+  }
+
+  .invest-table thead {
+    display: none;
+  }
+
+  .invest-table tbody,
+  .invest-table tr,
+  .invest-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .invest-table tr {
+    background: #fff;
+    border: 1px solid #f1f5f9;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .invest-table td {
+    border: 0;
+    padding: 10px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    white-space: normal;
+  }
+
+  .invest-table td::before {
+    content: attr(data-label);
+    color: #64748b;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+
+  .td-actions {
+    justify-content: flex-end;
   }
 }
 
@@ -357,13 +467,12 @@
   .form-grid {
     grid-template-columns: 1fr;
   }
+
   .form-span-2 {
     grid-column: span 1;
   }
+
   .modal-content {
     padding: 22px;
-  }
-  .invest-table {
-    min-width: 640px;
   }
 }

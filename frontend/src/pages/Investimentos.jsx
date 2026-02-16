@@ -200,8 +200,8 @@ function Investimentos() {
         form.tipo === "Renda Fixa"
           ? form.ativo.trim()
           : form.tipo === "Dolar"
-          ? "USD"
-          : (form.ativo || "").toUpperCase(),
+            ? "USD"
+            : (form.ativo || "").toUpperCase(),
     };
 
     if (form.tipo === "Renda Fixa") {
@@ -236,6 +236,26 @@ function Investimentos() {
     } catch (e) {
       console.error(e);
       alert("Erro ao salvar (sem conexão com o backend).");
+    }
+  };
+
+  const excluirAporte = async (id) => {
+    const ok = window.confirm("Deseja excluir este aporte?");
+    if (!ok) return;
+
+    try {
+      const res = await fetch(`${API}${id}/`, { method: "DELETE" });
+
+      // DRF normalmente retorna 204 No Content
+      if (!res.ok && res.status !== 204) {
+        const err = await res.json().catch(() => ({}));
+        return alert("Erro ao excluir:\n" + JSON.stringify(err, null, 2));
+      }
+
+      setHistorico((prev) => prev.filter((x) => x.id !== id));
+    } catch (e) {
+      console.error(e);
+      alert("Erro ao excluir (sem conexão com o backend).");
     }
   };
 
@@ -388,25 +408,35 @@ function Investimentos() {
                     <th>Categoria</th>
                     <th>Data</th>
                     <th>Valor</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {dadosExibidos.map((item) => (
                     <tr key={item.id}>
                       <td className="font-bold">{item.ativo}</td>
+
                       <td>
                         <span className={`badge badge-${item.tipo.toLowerCase().replace(" ", "-")}`}>
                           {item.tipo}
                         </span>
                       </td>
+
                       <td>{item.data.split("-").reverse().join("/")}</td>
+
                       <td className="font-bold">{BRL(item.valor)}</td>
+
+                      <td className="td-actions">
+                        <button className="btn-delete" onClick={() => excluirAporte(item.id)}>
+                          Excluir
+                        </button>
+                      </td>
                     </tr>
                   ))}
 
                   {!dadosExibidos.length && (
                     <tr>
-                      <td colSpan="4" className="empty-row">
+                      <td colSpan="5" className="empty-row">
                         Nenhum registro encontrado com esses filtros.
                       </td>
                     </tr>
