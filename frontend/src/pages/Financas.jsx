@@ -108,7 +108,6 @@ function Financas() {
     }
   };
 
-  // ✅ NOVO: excluir lançamento
   const excluirTransacao = async (id) => {
     const ok = window.confirm("Excluir este lançamento?");
     if (!ok) return;
@@ -116,7 +115,6 @@ function Financas() {
     try {
       const res = await fetch(`${API_URL}${id}/`, { method: "DELETE" });
 
-      // DRF normalmente retorna 204 No Content
       if (res.status === 204 || res.ok) {
         setTransacoes((prev) => prev.filter((t) => t.id !== id));
       } else {
@@ -215,38 +213,38 @@ function Financas() {
               )}
             </div>
 
-            <table className="financas-table">
-              <thead>
-                <tr>
-                  <th>Descrição</th>
-                  <th>Valor</th>
-                  <th>Tipo</th>
-                  <th>Data</th>
-                  <th>Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transacoes.map(t => (
-                  <tr key={t.id}>
-                    <td>{t.descricao}</td>
-                    <td className={t.tipo === "entrada" ? "txt-entrada" : "txt-saida"}>
-                      {t.tipo === "saida" ? "- " : "+ "}{formatarBRL(t.valor)}
-                    </td>
-                    <td>
-                      <span className={`badge-tipo ${t.tipo}`}>{t.tipo.toUpperCase()}</span>
-                    </td>
-                    <td>{formatarDataBR(t.data)}</td>
-
-                    {/* ✅ NOVO: botão excluir */}
-                    <td>
-                      <button className="btn-danger" onClick={() => excluirTransacao(t.id)}>
-                        Excluir
-                      </button>
-                    </td>
+            <div className="financas-table-scroll">
+              <table className="financas-table">
+                <thead>
+                  <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Data</th>
+                    <th>Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {transacoes.map(t => (
+                    <tr key={t.id}>
+                      <td>{t.descricao}</td>
+                      <td className={t.tipo === "entrada" ? "txt-entrada" : "txt-saida"}>
+                        {t.tipo === "saida" ? "- " : "+ "}{formatarBRL(t.valor)}
+                      </td>
+                      <td>
+                        <span className={`badge-tipo ${t.tipo}`}>{t.tipo.toUpperCase()}</span>
+                      </td>
+                      <td>{formatarDataBR(t.data)}</td>
+                      <td>
+                        <button className="btn-danger" onClick={() => excluirTransacao(t.id)}>
+                          Excluir
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         </main>
       </div>
