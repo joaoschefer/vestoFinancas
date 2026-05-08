@@ -96,10 +96,42 @@ function Financas() {
     };
   }, [transacoes]);
 
-  const dadosPizza = [
-    { name: "Entradas", value: resumo.entradas, color: "#05cd99" },
-    { name: "Saídas", value: resumo.saidas, color: "#ee5d50" }
-  ].filter((d) => d.value > 0);
+  const dadosPizza = useMemo(() => {
+    const cores = {
+      alimentacao: "#f97316",
+      transporte: "#3b82f6",
+      moradia: "#8b5cf6",
+      saude: "#ef4444",
+      educacao: "#06b6d4",
+      lazer: "#ec4899",
+      investimentos: "#22c55e",
+      salario: "#14b8a6",
+      vendas: "#eab308",
+      outros: "#64748b"
+    };
+
+    const agrupado = transacoes 
+      .filter((t) => t.tipo === "saida")
+      .reduce((acc, t) => {
+        const cat = t.categoria || "outros";
+
+        if (!acc[cat]) {
+          acc[cat] = {
+            name: nomeCategoria(cat),
+            value: 0,
+            color: cores[cat] || "#64748b"
+          };
+        }
+
+        acc[cat].value += Number(t.valor || 0);
+
+        return acc;
+      }, {});
+
+      return Object.values(agrupado).filter((item) => item.value > 0);
+  }, [transacoes]);
+
+
 
   const dadosBarras = useMemo(() => {
     const agrupado = transacoes.reduce((acc, t) => {
@@ -247,8 +279,8 @@ function Financas() {
 
           <div className="financas-charts-row">
             <div className="chart-container">
-              <h3>Distribuição de Gastos</h3>
-
+              <h3>Gastos por Categoria</h3>
+              
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -266,7 +298,7 @@ function Financas() {
                     ))}
                   </Pie>
 
-                  <Tooltip />
+                  <Tooltip formatter={(value) => formatarBRL(value)}/>
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
