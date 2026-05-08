@@ -1,28 +1,43 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import { FiHome, FiDollarSign, FiTrendingUp, FiSettings } from "react-icons/fi";
 import "./Sidebar.css";
 
 function Sidebar() {
-    return (
-        <aside>
-            <nav>
-                <ul>
-                    <li>
-                        <Link to="/" className="nav-link">Dashboard</Link>
-                    </li>
-                    <li>
-                        <Link to="/financas" className="nav-link">Finanças</Link>
-                    </li>
-                    <li>
-                        <Link to="/investimentos" className="nav-link">Investimentos</Link>
-                    </li>
-                    <li>
-                        <Link to="/configuracoes" className="nav-link">Configurações</Link>
-                    </li>
+  return (
+    <aside className="sidebar">
+      <nav>
+        <ul>
+          <li>
+            <NavLink to="/" className="nav-link">
+              <FiHome className="nav-icon" />
+              <span>Dashboard</span>
+            </NavLink>
+          </li>
 
-                </ul>
-            </nav>
-        </aside>
-    );
+          <li>
+            <NavLink to="/financas" className="nav-link">
+              <FiDollarSign className="nav-icon" />
+              <span>Finanças</span>
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/investimentos" className="nav-link">
+              <FiTrendingUp className="nav-icon" />
+              <span>Investimentos</span>
+            </NavLink>
+          </li>
+
+          <li>
+            <NavLink to="/configuracoes" className="nav-link">
+              <FiSettings className="nav-icon" />
+              <span>Configurações</span>
+            </NavLink>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+  );
 }
 
 export default Sidebar;
