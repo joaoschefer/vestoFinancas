@@ -6,8 +6,8 @@ import {
 import "./Financas.css";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
+import api from "../services/api";
 
-const API_URL = "http://127.0.0.1:8000/api/transacoes/";
 
 const CATEGORIAS = [
   { value: "alimentacao", label: "Alimentação" },
@@ -64,17 +64,23 @@ function Financas() {
       if (dataInicio) params.set("data_inicio", dataInicio);
       if (dataFim) params.set("data_fim", dataFim);
 
-      const res = await fetch(`${API_URL}?${params.toString()}`);
-      const dados = await res.json();
+      const response = await api.get(`transacoes/?${params.toString()}`);
 
-      setTransacoes(Array.isArray(dados) ? dados : []);
+      setTransacoes(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error(err);
       setTransacoes([]);
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+      }
     } finally {
       setCarregando(false);
     }
   };
+
 
   useEffect(() => {
     carregarTransacoes();
@@ -110,7 +116,7 @@ function Financas() {
       outros: "#64748b"
     };
 
-    const agrupado = transacoes 
+    const agrupado = transacoes
       .filter((t) => t.tipo === "saida")
       .reduce((acc, t) => {
         const cat = t.categoria || "outros";
@@ -128,7 +134,7 @@ function Financas() {
         return acc;
       }, {});
 
-      return Object.values(agrupado).filter((item) => item.value > 0);
+    return Object.values(agrupado).filter((item) => item.value > 0);
   }, [transacoes]);
 
 
@@ -168,36 +174,28 @@ function Financas() {
       categoria
     };
 
-    console.log("Payload enviado:", payload);
-
     try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(payload)
-      });
+      const response = await api.post("transacoes/", payload);
 
-      if (res.ok) {
-        const criado = await res.json();
+      const criado = response.data;
 
-        setTransacoes((prev) => [criado, ...prev]);
-        setModalNovoAberto(false);
+      setTransacoes((prev) => [criado, ...prev]);
+      setModalNovoAberto(false);
 
-        setCategoria("outros");
-        setDescricao("");
-        setValor("");
-        setTipo("entrada");
-        setData("");
-      } else {
-        const erro = await res.json().catch(() => null);
-        console.log("Erro do backend:", erro);
-        alert("Erro ao salvar. Veja o console.");
-      }
+      setCategoria("outros");
+      setDescricao("");
+      setValor("");
+      setTipo("entrada");
+      setData("");
     } catch (err) {
-      console.error(err);
-      alert("Erro ao salvar.");
+      console.error("Erro do backend:", err.response?.data || err);
+      alert("Erro ao salvar. Veja o console.");
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+      }
     }
   };
 
@@ -206,20 +204,18 @@ function Financas() {
     if (!ok) return;
 
     try {
-      const res = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE"
-      });
+      await api.delete(`transacoes/${id}/`);
 
-      if (res.status === 204 || res.ok) {
-        setTransacoes((prev) => prev.filter((t) => t.id !== id));
-      } else {
-        const txt = await res.text().catch(() => "");
-        console.log(txt);
-        alert("Não foi possível excluir.");
-      }
+      setTransacoes((prev) => prev.filter((t) => t.id !== id));
     } catch (err) {
       console.error(err);
       alert("Erro ao excluir.");
+
+      if (err.response?.status === 401) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+      }
     }
   };
 
@@ -280,7 +276,7 @@ function Financas() {
           <div className="financas-charts-row">
             <div className="chart-container">
               <h3>Gastos por Categoria</h3>
-              
+
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
@@ -298,7 +294,7 @@ function Financas() {
                     ))}
                   </Pie>
 
-                  <Tooltip formatter={(value) => formatarBRL(value)}/>
+                  <Tooltip formatter={(value) => formatarBRL(value)} />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>

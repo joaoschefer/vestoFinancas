@@ -28,3 +28,18 @@ header {
     font-size: 28px;
     color: white;
 }
+
+.logout-btn {
+    border: none;
+    background: #ef4444;
+    color: #ffffff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
+}

@@ -1,6 +1,20 @@
-from rest_framework import viewsets
+from django.contrib.auth.models import User
+from rest_framework import viewsets, generics
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Transacao
-from .serializers import TransacaoSerializer
+from .serializers import TransacaoSerializer, UsuarioRegistroSerializer, UsuarioLogadoSerializer
+
+class RegistrarUsuarioView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UsuarioRegistroSerializer
+    permission_classes = [AllowAny]
+
+class UsuarioLogadoView(generics.RetrieveAPIView):
+    serializer_class = UsuarioLogadoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 class TransacaoViewSet(viewsets.ModelViewSet):
     serializer_class = TransacaoSerializer

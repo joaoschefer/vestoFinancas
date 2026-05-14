@@ -17,12 +17,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from vestoapp.views import TransacaoViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from vestoapp.views import TransacaoViewSet, RegistrarUsuarioView, UsuarioLogadoView
 
 router = DefaultRouter()
 router.register(r"transacoes", TransacaoViewSet, basename="transacoes")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    path("api/usuarios/registrar/", RegistrarUsuarioView.as_view(), name="registrar"),
+    path("api/usuarios/login/", TokenObtainPairView.as_view(), name="login"),
+    path("api/usuarios/refresh/", TokenRefreshView.as_view(), name="refresh"),
+    path("api/usuarios/me/", UsuarioLogadoView.as_view(), name="usuario-logado"),
+
     path("api/", include(router.urls)),
 ]

@@ -1,0 +1,116 @@
+.registro-page {
+  min-height: 100vh;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.registro-card {
+  width: 100%;
+  max-width: 440px;
+  background: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 22px;
+  padding: 38px 34px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.registro-card h1 {
+  margin: 0 0 28px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #f8fafc;
+  text-align: center;
+}
+
+.registro-card form {
+  width: 100%;
+}
+
+.registro-card input {
+  width: 100%;
+  height: 48px;
+  margin-bottom: 16px;
+  padding: 0 15px;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  background: #020617;
+  color: #f8fafc;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.registro-card input::placeholder {
+  color: #94a3b8;
+}
+
+.registro-card input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.registro-card button {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2563eb, #0ea5e9);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.registro-card button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(37, 99, 235, 0.35);
+}
+
+.registro-error {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #f87171;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.registro-success {
+  margin: 16px 0 0;
+  text-align: center;
+  color: #22c55e;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.registro-link {
+  margin: 20px 0 0;
+  text-align: center;
+  color: #cbd5e1;
+  font-size: 14px;
+}
+
+.registro-link a {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.registro-link a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+  .registro-card {
+    padding: 30px 22px;
+  }
+
+  .registro-card h1 {
+    font-size: 28px;
+  }
+}
