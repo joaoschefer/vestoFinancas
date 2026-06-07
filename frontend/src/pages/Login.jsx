@@ -24,7 +24,7 @@ function Login() {
             localStorage.setItem("refresh_token", response.data.refresh);
 
             navigate("/financas", { replace: true });
-        } catch (error) {
+        } catch {
             setErro("Usuário ou senha inválidos.");
         }
     }

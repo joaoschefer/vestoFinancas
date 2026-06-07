@@ -6,16 +6,9 @@ function Investimentos() {
   return (
     <div className="invest-page">
       <Header />
-
       <div className="invest-main">
         <Sidebar />
-
-        <main className="invest-content">
-          <div className="invest-empty">
-            <h2>Página de Investimentos</h2>
-            <p>Em desenvolvimento futuramente.</p>
-          </div>
-        </main>
+        <main className="invest-content" />
       </div>
     </div>
   );

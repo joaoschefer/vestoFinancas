@@ -2,8 +2,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
-  background-color: #f8fafc;
+  background: #f4f7fe;
 }
 
 .invest-main {
@@ -14,31 +13,5 @@
 
 .invest-content {
   flex: 1;
-  padding: 40px;
   overflow-y: auto;
-  background: #f8fafc;
-}
-
-.invest-empty {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.invest-empty h2 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: #1e293b;
-}
-
-.invest-empty p {
-  margin-top: 8px;
-  color: #64748b;
-}
-
-@media (max-width: 900px) {
-  .invest-content {
-    padding: 24px;
-  }
 }
