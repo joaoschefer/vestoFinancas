@@ -8,6 +8,7 @@ from vestoapp.views import (
     ExportarTransacoesView,
     PreferenciaUsuarioView,
     RegistrarUsuarioView,
+    TransacaoRecorrenteViewSet,
     TransacaoViewSet,
     UsuarioLogadoView,
 )
@@ -15,6 +16,7 @@ from vestoapp.views import (
 
 router = DefaultRouter()
 router.register(r"transacoes", TransacaoViewSet, basename="transacoes")
+router.register(r"recorrencias", TransacaoRecorrenteViewSet, basename="recorrencias")
 
 urlpatterns = [
     path("admin/", admin.site.urls),

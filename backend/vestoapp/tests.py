@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_framework.test import APITestCase
 
-from .models import PreferenciaUsuario, Transacao
+from .models import PreferenciaUsuario, Transacao, TransacaoRecorrente
 
 
 class TransacaoViewSetTests(APITestCase):
@@ -155,3 +156,63 @@ class ConfiguracoesUsuarioTests(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(User.objects.filter(pk=self.usuario.pk).exists())
         self.assertFalse(Transacao.objects.filter(usuario_id=self.usuario.pk).exists())
+
+
+class TransacaoRecorrenteTests(APITestCase):
+    def setUp(self):
+        self.usuario = User.objects.create_user(username="recorrente", password="senha123")
+        self.outro_usuario = User.objects.create_user(username="outro-recorrente", password="senha123")
+        self.client.force_authenticate(user=self.usuario)
+
+    def test_cria_recorrencia_e_gera_transacao_quando_data_chega(self):
+        hoje = timezone.localdate()
+        response = self.client.post(
+            "/api/recorrencias/",
+            {
+                "descricao": "Aluguel",
+                "valor": "1500.00",
+                "tipo": "saida",
+                "categoria": "moradia",
+                "dia_do_mes": hoje.day,
+                "ativa": True,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        recorrencia = TransacaoRecorrente.objects.get(id=response.data["id"])
+        transacao = Transacao.objects.get(recorrencia=recorrencia, data=hoje)
+        self.assertEqual(transacao.usuario, self.usuario)
+        self.assertEqual(transacao.descricao, "Aluguel")
+
+    def test_nao_duplica_transacao_recorrente(self):
+        hoje = timezone.localdate()
+        recorrencia = TransacaoRecorrente.objects.create(
+            usuario=self.usuario,
+            descricao="Salario",
+            valor="5000.00",
+            tipo="entrada",
+            categoria="salario",
+            dia_do_mes=hoje.day,
+            proxima_data=hoje,
+        )
+
+        self.client.get("/api/transacoes/")
+        self.client.get("/api/transacoes/")
+
+        self.assertEqual(Transacao.objects.filter(recorrencia=recorrencia, data=hoje).count(), 1)
+
+    def test_lista_apenas_recorrencias_do_usuario_logado(self):
+        TransacaoRecorrente.objects.create(
+            usuario=self.outro_usuario,
+            descricao="Conta de outro usuario",
+            valor="100.00",
+            tipo="saida",
+            categoria="outros",
+            dia_do_mes=10,
+        )
+
+        response = self.client.get("/api/recorrencias/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, [])

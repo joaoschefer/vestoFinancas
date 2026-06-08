@@ -6,7 +6,11 @@ import api from "../services/api";
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [erro, setErro] = useState("");
+    const [erro, setErro] = useState(() => {
+        const mensagem = sessionStorage.getItem("auth_message") || "";
+        sessionStorage.removeItem("auth_message");
+        return mensagem;
+    });
 
     const navigate = useNavigate();
 

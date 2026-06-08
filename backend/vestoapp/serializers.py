@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from .models import PreferenciaUsuario, Transacao
+from .models import PreferenciaUsuario, Transacao, TransacaoRecorrente
 
 
 class UsuarioRegistroSerializer(serializers.ModelSerializer):
@@ -34,7 +34,23 @@ class UsuarioLogadoSerializer(serializers.ModelSerializer):
 class TransacaoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transacao
-        fields = ["id", "descricao", "valor", "tipo", "categoria", "data", "created_at"]
+        fields = ["id", "descricao", "valor", "tipo", "categoria", "data", "recorrencia", "created_at"]
+        read_only_fields = ["recorrencia"]
+
+
+class TransacaoRecorrenteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransacaoRecorrente
+        fields = [
+            "id", "descricao", "valor", "tipo", "categoria",
+            "dia_do_mes", "ativa", "proxima_data", "created_at",
+        ]
+        read_only_fields = ["proxima_data", "created_at"]
+
+    def validate_dia_do_mes(self, value):
+        if not 1 <= value <= 31:
+            raise serializers.ValidationError("Informe um dia entre 1 e 31.")
+        return value
 
 
 class PreferenciaUsuarioSerializer(serializers.ModelSerializer):

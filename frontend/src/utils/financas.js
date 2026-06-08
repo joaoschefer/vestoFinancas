@@ -31,6 +31,7 @@ export const tratarErroAutenticacao = (erro) => {
   if (erro.response?.status !== 401) return false;
   localStorage.removeItem("access_token");
   localStorage.removeItem("refresh_token");
+  sessionStorage.setItem("auth_message", "Sua sessão não é mais válida. Entre novamente.");
   window.location.href = "/login";
   return true;
 };
